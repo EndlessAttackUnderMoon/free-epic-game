@@ -76,7 +76,7 @@ def filter_game_data(data_list):
             continue
     return list_content
 
-@register("astrbot_plugin_free_epic_game", "Epic喜加一", "获取本周Epic的周免游戏。", "1.1")
+@register("Epic喜加一", "EndlessAttackUnderMoon", "获取本周Epic的周免游戏。", "1.1")
 class PluginFreeEpicGame(Star):
     def __init__(self, context: Context):
         super().__init__(context)
