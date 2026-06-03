@@ -1,6 +1,0 @@
-{
-    "infoSource": {
-        "description": "请求信息URL",
-        "type": "string"
-    }
-}

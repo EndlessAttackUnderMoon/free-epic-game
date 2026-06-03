@@ -1,7 +1,6 @@
 from astrbot.api.event import filter, AstrMessageEvent
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
-from astrbot.api import AstrBotConfig
 import requests
 import re
 from datetime import datetime
@@ -78,9 +77,8 @@ def filter_game_data(data_list):
 
 @register("Epic喜加一", "EndlessAttackUnderMoon", "获取本周Epic的周免游戏。", "1.1")
 class PluginFreeEpicGame(Star):
-    def __init__(self, context: Context, config: AstrBotConfig):
+    def __init__(self, context: Context):
         super().__init__(context)
-        self.config = config
 
     async def initialize(self):
         """可选择实现异步的插件初始化方法，当实例化该插件类之后会自动调用该方法。"""
@@ -96,26 +94,23 @@ class PluginFreeEpicGame(Star):
 
         text = ""
         try:
-            url = self.config['infoSource']
-            if url == None or url == "":
-                text = "地址配置错误!"
+            url = "https://indienova.com/gamedb/list/121/p/1"
+            resp_data = get_url_info(url)
+            if resp_data == None:
+                text = "请求失败呀，等会儿再试试吧!"
             else:
-                resp_data = get_url_info(url)
-                if resp_data == None:
-                    text = "请求失败呀，等会儿再试试吧!"
+                game_data_list = parse_web_data(resp_data)
+                free_game_list = filter_game_data(game_data_list)
+                if bool(free_game_list) == False:        
+                    text = "没有免费游戏可以领取哦，明天再来看看吧!"
                 else:
-                    game_data_list = parse_web_data(resp_data)
-                    free_game_list = filter_game_data(game_data_list)
-                    if bool(free_game_list) == False:        
-                        text = "没有免费游戏可以领取哦，明天再来看看吧!"
-                    else:
-                        text = "查到周免信息了哦\n"
-                        length = len(free_game_list)
-                        for i in range(length):
-                            game_data = free_game_list[i]
-                            text = text + str(i + 1) + ": 《" + game_data["game_zh"][0] + "》\n领取时间: " + game_data["game_start"][0]
-                            if i < length - 1:
-                                text = text + "\n\n"
+                    text = "查到周免信息了哦\n"
+                    length = len(free_game_list)
+                    for i in range(length):
+                        game_data = free_game_list[i]
+                        text = text + str(i + 1) + ": 《" + game_data["game_zh"][0] + "》\n领取时间: " + game_data["game_start"][0]
+                        if i < length - 1:
+                            text = text + "\n\n"
         except Exception as e:
             logger.error(f"请求失败: {str(e)}")
             text = "请求失败!"
